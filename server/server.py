@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
-from extensions import db, ma
-from models import Patient, Doctor, Appointment, seed_data
+from .extensions import db, ma
+from .models import Patient, Doctor, Appointment, seed_data
+from .routes import api
 
 app = Flask(__name__)
 CORS(app)

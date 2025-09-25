@@ -1,7 +1,8 @@
 from flask import request, jsonify
 from functools import wraps
-from extensions import db
-from models import Patient, Doctor, Appointment, PatientSchema, DoctorSchema, AppointmentSchema
+from .extensions import db
+
+from .models import Patient, Doctor, Appointment, PatientSchema, DoctorSchema, AppointmentSchema
 
 # -----------------------------
 # SCHEMAS
