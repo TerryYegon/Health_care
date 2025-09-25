@@ -18,6 +18,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 ma.init_app(app)
 
+from server.routes import api
+app.register_blueprint(api, url_prefix='/api')
+
 # -----------------------------
 # Create tables + seed
 # -----------------------------
