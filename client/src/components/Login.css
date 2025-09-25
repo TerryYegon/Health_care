@@ -1,0 +1,151 @@
+/* src/components/Login.css */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    padding: 20px;
+}
+
+.auth-card {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.auth-title {
+    font-size: 2rem;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.auth-subtitle {
+    color: #6b7280;
+    margin-bottom: 30px;
+}
+
+.auth-error {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+    background-color: #1d4ed8;
+}
+
+.auth-button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.auth-footer {
+    margin-top: 25px;
+    color: #6b7280;
+}
+
+.auth-footer a {
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* src/components/Login.css (add this to the end of the file) */
+
+.demo-credentials {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.demo-credentials h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #2563eb;
+}
+
+.demo-credentials ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.demo-credentials li {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #4b5563;
+}
+
+.demo-credentials strong {
+    color: #1f2937;
+}
+
+.demo-credentials p {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-top: 10px;
+}
