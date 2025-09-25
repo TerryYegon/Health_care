@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 from extensions import db, ma
-from models import Patient, Doctor, Appointment, seed_data
+from models import seed_data
+from routes import api  # import blueprint
 
 app = Flask(__name__)
 CORS(app)
@@ -17,6 +18,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 # -----------------------------
 db.init_app(app)
 ma.init_app(app)
+
+# -----------------------------
+# Register blueprint
+# -----------------------------
+app.register_blueprint(api, url_prefix="/api")
 
 # -----------------------------
 # Create tables + seed

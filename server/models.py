@@ -11,7 +11,6 @@ class Patient(db.Model):
     name = db.Column(db.String(100), nullable=False)
     age = db.Column(db.Integer, nullable=False)
 
-    # relationship: one patient can have many appointments
     appointments = db.relationship("Appointment", back_populates="patient", cascade="all, delete-orphan")
 
 
@@ -22,7 +21,6 @@ class Doctor(db.Model):
     name = db.Column(db.String(100), nullable=False)
     specialization = db.Column(db.String(100), nullable=False)
 
-    # relationship: one doctor can have many appointments
     appointments = db.relationship("Appointment", back_populates="doctor", cascade="all, delete-orphan")
 
 
