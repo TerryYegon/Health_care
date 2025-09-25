@@ -1,6 +1,8 @@
 from flask import Blueprint
-from server.controllers import get_patients, create_patient, update_patient, delete_patient
-
+from server.controllers import (
+    get_patients, create_patient, update_patient, delete_patient,
+    get_doctors, create_doctor, update_doctor, delete_doctor
+)
 api = Blueprint('api', __name__)
 
 # -----------------------------
