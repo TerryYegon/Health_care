@@ -1,40 +1,25 @@
-from server import db, ma
+from extensions import db, ma
 
-class Doctor(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    specialization = db.Column(db.String(100), nullable=False)
-    appointments = db.relationship("Appointment", backref="doctor", lazy=True)
-
+# Example model for patients
 class Patient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    contact = db.Column(db.String(100), nullable=False)
-    appointments = db.relationship("Appointment", backref="patient", lazy=True)
+    age = db.Column(db.Integer, nullable=False)
+    condition = db.Column(db.String(200), nullable=False)
 
-class Appointment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.String(50), nullable=False)
-    time = db.Column(db.String(50), nullable=False)
-    status = db.Column(db.String(50), default="pending")
-    doctor_id = db.Column(db.Integer, db.ForeignKey("doctor.id"), nullable=True)
-    patient_id = db.Column(db.Integer, db.ForeignKey("patient.id"), nullable=False)
+    def __repr__(self):
+        return f"<Patient {self.name}>"
 
-# Schemas
-class DoctorSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Doctor
-        include_relationships = True
-        load_instance = True
-
+# Schema for serialization
 class PatientSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Patient
-        include_relationships = True
         load_instance = True
 
-class AppointmentSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Appointment
-        include_fk = True
-        load_instance = True
+# Function to seed data
+def seed_data():
+    if not Patient.query.first():  # only seed if empty
+        p1 = Patient(name="John Doe", age=30, condition="Flu")
+        p2 = Patient(name="Jane Smith", age=25, condition="Asthma")
+        db.session.add_all([p1, p2])
+        db.session.commit()
