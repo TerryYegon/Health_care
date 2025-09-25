@@ -1,23 +1,37 @@
 from flask import Flask
+from flask_cors import CORS
 from extensions import db, ma
-from models import seed_data
+from models import Patient, Doctor, Appointment, seed_data
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///healthcare.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+CORS(app)
 
-# Initialize extensions
+# -----------------------------
+# Config
+# -----------------------------
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///healthcare.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# -----------------------------
+# Init extensions
+# -----------------------------
 db.init_app(app)
 ma.init_app(app)
 
-# Setup database
+# -----------------------------
+# Create tables + seed
+# -----------------------------
 with app.app_context():
     db.create_all()
-    seed_data()
+    seed_data(db)
 
-@app.route('/')
+# -----------------------------
+# Test route
+# -----------------------------
+@app.route("/")
 def home():
-    return {"message": "Healthcare API is running!"}
+    return {"message": "Healthcare API is running!"}, 200
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)

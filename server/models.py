@@ -1,25 +1,84 @@
 from extensions import db, ma
 
-# Example model for patients
+# -----------------------------
+# Models
+# -----------------------------
+
 class Patient(db.Model):
+    __tablename__ = "patients"
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     age = db.Column(db.Integer, nullable=False)
-    condition = db.Column(db.String(200), nullable=False)
 
-    def __repr__(self):
-        return f"<Patient {self.name}>"
+    # relationship: one patient can have many appointments
+    appointments = db.relationship("Appointment", back_populates="patient", cascade="all, delete-orphan")
 
-# Schema for serialization
+
+class Doctor(db.Model):
+    __tablename__ = "doctors"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    specialization = db.Column(db.String(100), nullable=False)
+
+    # relationship: one doctor can have many appointments
+    appointments = db.relationship("Appointment", back_populates="doctor", cascade="all, delete-orphan")
+
+
+class Appointment(db.Model):
+    __tablename__ = "appointments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.String(50), nullable=False)
+
+    patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"), nullable=False)
+
+    patient = db.relationship("Patient", back_populates="appointments")
+    doctor = db.relationship("Doctor", back_populates="appointments")
+
+
+# -----------------------------
+# Schemas
+# -----------------------------
+
 class PatientSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Patient
+        include_relationships = True
         load_instance = True
 
-# Function to seed data
-def seed_data():
-    if not Patient.query.first():  # only seed if empty
-        p1 = Patient(name="John Doe", age=30, condition="Flu")
-        p2 = Patient(name="Jane Smith", age=25, condition="Asthma")
-        db.session.add_all([p1, p2])
+
+class DoctorSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Doctor
+        include_relationships = True
+        load_instance = True
+
+
+class AppointmentSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Appointment
+        include_fk = True
+        load_instance = True
+
+
+# -----------------------------
+# Seed Data
+# -----------------------------
+
+def seed_data(db):
+    if not Doctor.query.first():
+        doc1 = Doctor(name="Dr. Smith", specialization="Cardiology")
+        doc2 = Doctor(name="Dr. Lee", specialization="Dermatology")
+
+        pat1 = Patient(name="Alice", age=30)
+        pat2 = Patient(name="Bob", age=45)
+
+        appt1 = Appointment(date="2025-10-01", time="10:00", patient=pat1, doctor=doc1)
+        appt2 = Appointment(date="2025-10-02", time="14:00", patient=pat2, doctor=doc2)
+
+        db.session.add_all([doc1, doc2, pat1, pat2, appt1, appt2])
         db.session.commit()
