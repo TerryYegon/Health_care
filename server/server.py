@@ -2,9 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-
-db = SQLAlchemy()
-ma = Marshmallow()
+from models import db, ma, seed_data
 
 def create_app():
     app = Flask(__name__)
@@ -17,6 +15,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        seed_data()  # insert sample doctors, patients, appointments
 
     return app
 
