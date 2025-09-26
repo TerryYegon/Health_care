@@ -5,7 +5,6 @@ import { useAuth } from "./context/AuthContext.jsx";
 import Appointments from "./pages/Appointments.jsx";
 import AdminDoctors from "./pages/AdminDoctors.jsx";
 import Login from "./components/Login";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx"; 
 import LandingPage from "./pages/LandingPage.jsx";
