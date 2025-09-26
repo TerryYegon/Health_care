@@ -1,4 +1,4 @@
-// src/components/Login.jsx
+// src/components/Login.jsx - SIMPLEST LOGIN
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -6,20 +6,25 @@ import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [role, setRole] = useState('patient'); 
     const { login } = useAuth();
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError('');
+        
         try {
-            await login(email, password);
+            // Bypass the API call and create a mock user object based on the role
+            const mockUser = {
+                id: 1, 
+                role: role, 
+                username: role, 
+            };
+            await login(mockUser); 
         } catch (err) {
-            setError(err.message || 'Failed to login. Please check your credentials.');
+            // This part should not be reached in this simplified version
+            console.error("Login failed:", err);
         } finally {
             setLoading(false);
         }
@@ -30,30 +35,22 @@ const Login = () => {
             <div className="auth-card">
                 <h2 className="auth-title">Welcome Back</h2>
                 <p className="auth-subtitle">Sign in to your account</p>
-                {error && <div className="auth-error">{error}</div>}
                 <form onSubmit={handleSubmit} className="auth-form">
+                    
                     <div className="form-group">
-                        <label htmlFor="email">Email Address</label>
-                        <input
-                            type="email"
-                            id="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
+                        <label htmlFor="role">Login As</label>
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
                             required
-                        />
+                        >
+                            <option value="patient">Patient</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="clinic_admin">Admin</option>
+                        </select>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter your password"
-                            required
-                        />
-                    </div>
+
                     <button type="submit" className="auth-button" disabled={loading}>
                         {loading ? 'Logging in...' : 'Login'}
                     </button>
@@ -63,14 +60,8 @@ const Login = () => {
                 </div>
                 
                 <div className="demo-credentials">
-                    <h3>Demo Accounts</h3>
-                    <p>Use these credentials to test different user roles:</p>
-                    <ul>
-                        <li><strong>Patient:</strong> patient@example.com</li>
-                        <li><strong>Doctor:</strong> doctor@example.com</li>
-                        <li><strong>Admin:</strong> admin@example.com</li>
-                    </ul>
-                    <p><strong>Password for all:</strong> password123</p>
+                    <h3>Simplified Login</h3>
+                    <p>Select a role from the dropdown to log in without a password.</p>
                 </div>
             </div>
         </div>

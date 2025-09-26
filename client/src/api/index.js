@@ -1,53 +1,85 @@
-// src/api/index.js
+// src/api/index.js - FINAL VERSION
 
-// ------------------ Fake in-memory "database" ------------------
-let users = [
-  { id: 1, name: "Demo Patient", email: "patient@example.com", role: "patient" },
-  { id: 2, name: "Demo Doctor", email: "doctor@example.com", role: "doctor" },
-  { id: 3, name: "Demo Admin", email: "admin@example.com", role: "clinic_admin" },
-];
+const BASE_URL = 'http://localhost:5000/api'; // The base URL for all API requests
 
-let appointments = [
-  {
-    id: 101,
-    patient_id: 1,
-    patient_name: "Demo Patient",
-    doctor_id: 2,
-    doctor_name: "Demo Doctor",
-    clinic_name: "Downtown Clinic",
-    date: new Date().toISOString().split("T")[0], // today
-    time: "10:00 AM",
-    status: "scheduled",
-    notes: "Follow-up checkup",
-  },
-];
+// Function for making authenticated requests (utility)
+const makeRequest = async (path, options = {}) => {
+  const token = localStorage.getItem('token');
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...options.headers,
+  };
 
-// ------------------ USERS API ------------------
-export const usersAPI = {
-  getAll: async () => {
-    await new Promise((r) => setTimeout(r, 300)); // simulate network delay
-    return [...users];
-  },
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
-  update: async (id, data) => {
-    users = users.map((u) => (u.id === id ? { ...u, ...data } : u));
-    return users.find((u) => u.id === id);
-  },
+  if (res.status === 401) {
+    localStorage.removeItem('token');
+  }
 
-  delete: async (id) => {
-    users = users.filter((u) => u.id !== id);
-    return true;
-  },
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(errorBody.message || `API request failed with status ${res.status}`);
+  }
+  
+  return res.status === 204 ? null : res.json();
 };
 
 // ------------------ AUTH API ------------------
 export const authAPI = {
-  register: async ({ name, email, password, role = "doctor" }) => {
-    await new Promise((r) => setTimeout(r, 300));
-    const newUser = { id: Date.now(), name, email, role };
-    users.push(newUser);
-    return newUser;
+  login: async (credentials, role) => {
+    // Correctly build the URL based on the specified role
+    const res = await fetch(`http://localhost:5000/api/login/${role}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({ message: 'Login Failed' }));
+      throw new Error(errorBody.message || 'Login failed.');
+    }
+    
+    const data = await res.json();
+    localStorage.setItem('token', data.token);
+    return data.user;
   },
+
+  logout: () => {
+    localStorage.removeItem('token');
+  }
 };
 
-// -
+// ------------------ PATIENTS API ------------------
+export const patientsAPI = {
+  getAll: () => makeRequest('/patients'),
+};
+
+// ------------------ DOCTORS API ------------------
+export const doctorsAPI = {
+  getAll: () => makeRequest('/doctors'), 
+};
+
+// ------------------ APPOINTMENTS API ------------------
+export const appointmentsAPI = {
+  getAll: () => makeRequest('/appointments'), 
+
+  create: (appointmentData) => makeRequest('/appointments', {
+    method: 'POST',
+    body: JSON.stringify(appointmentData)
+  }),
+
+  assignDoctor: (id, doctorId) => makeRequest(`/appointments/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ doctor_id: doctorId })
+  }),
+
+  updateStatus: (id, status) => makeRequest(`/appointments/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status })
+  }),
+
+  delete: (id) => makeRequest(`/appointments/${id}`, {
+    method: 'DELETE'
+  }),
+};

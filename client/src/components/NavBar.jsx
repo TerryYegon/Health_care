@@ -1,30 +1,41 @@
+// src/components/NavBar.jsx - UPDATED VERSION
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext.jsx"; // <<< IMPORT Auth Context
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, logout } = useAuth(); // <<< Use real user and logout function
   const navigate = useNavigate();
+
+  // Determine the authenticated user's default dashboard path
+  let dashboardPath = '/dashboard';
+  if (user?.role === 'patient') {
+    // Patients typically land on a booking or home page
+    dashboardPath = '/';
+  }
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleAuth = () => {
-    if (isAuthenticated) {
-      setIsAuthenticated(false);
-      console.log("Signed out");
+    if (user) {
+      logout(); // Call the logout function from context
+      navigate("/");
     } else {
-      navigate("/signin"); // SPA-friendly navigation
+      navigate("/login"); // <<< FIXED: Navigate to /login instead of /signin
     }
+    toggleMenu(); // Close menu on mobile after action
   };
 
   return (
     <nav className="navbar">
       <div className="nav-container">
         <div className="nav-content">
-          {/* Logo */}
+          {/* Logo (Home) */}
           <div className="nav-logo">
-            <Link to="/">
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>
               <img src="/logo1.jpeg" alt="HealthCare Logo" className="logo-img" />
             </Link>
           </div>
@@ -32,11 +43,18 @@ export default function Navbar() {
           {/* Desktop Menu */}
           <div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
             <div className="nav-links">
-              <a href="#home" className="nav-link active">Home</a>
-              <a href="#services" className="nav-link">Services</a>
-              <a href="#doctors" className="nav-link">Doctors</a>
+              <Link to="/" className="nav-link" onClick={toggleMenu}>Home</Link>
+              {
+                // Show Dashboard link only if user is logged in
+                user && (
+                  <Link to={dashboardPath} className="nav-link" onClick={toggleMenu}>
+                    Dashboard
+                  </Link>
+                )
+              }
+              {/* Login/Sign Out Button */}
               <button onClick={handleAuth} className="nav-btn">
-                {isAuthenticated ? "Sign Out" : "Sign In"}
+                {user ? "Sign Out" : "Login"}
               </button>
             </div>
           </div>

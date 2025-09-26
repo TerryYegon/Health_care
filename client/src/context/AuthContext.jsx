@@ -1,56 +1,50 @@
-// src/context/AuthContext.jsx
+// src/context/AuthContext.jsx - SIMPLIFIED VERSION
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authAPI } from '../api';
 
 const AuthContext = createContext();
 
+export const useAuth = () => {
+    return useContext(AuthContext);
+};
+
 export const AuthProvider = ({ children }) => {
+    // The user state will hold the user object with role and other info
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Hardcoded demo users for easy testing and demonstration
-    const demoUsers = {
-        'patient@example.com': { id: 1, name: 'Demo Patient', email: 'patient@example.com', role: 'patient' },
-        'doctor@example.com': { id: 2, name: 'Demo Doctor', email: 'doctor@example.com', role: 'doctor' },
-        'admin@example.com': { id: 3, name: 'Demo Admin', email: 'admin@example.com', role: 'clinic_admin' },
-    };
-
+    // Load initial user state from localStorage
     useEffect(() => {
-        const loadUser = () => {
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                try {
-                    setUser(JSON.parse(storedUser));
-                } catch (e) {
-                    console.error("Failed to parse user from localStorage", e);
-                    localStorage.removeItem('user');
-                }
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user from localStorage", e);
+                localStorage.removeItem('user');
             }
-            setLoading(false);
-        };
-        loadUser();
+        }
+        setLoading(false);
     }, []);
 
-    const login = async (email, password) => {
-        setLoading(true);
-        // Simulate a network delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        if (demoUsers[email] && password === 'password123') {
-            const userData = demoUsers[email];
-            localStorage.setItem('user', JSON.stringify(userData));
-            setUser(userData);
-            setLoading(false);
-            return userData;
-        } else {
-            setLoading(false);
-            throw new Error('Invalid email or password. Please use the demo accounts.');
+    // The simplified login function takes a user object directly
+    const login = async (user) => {
+        // In the real app, this would use the authAPI to get the user from the backend
+        // For this simplified version, we just save the provided user object
+        try {
+            setUser(user);
+            localStorage.setItem('user', JSON.stringify(user));
+            // No token is needed since we're not making authenticated API calls
+        } catch (e) {
+            console.error("Login failed:", e);
         }
     };
 
     const logout = () => {
-        localStorage.removeItem('user');
         setUser(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
     };
 
     const value = {
@@ -62,11 +56,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
-};
-
-export const useAuth = () => {
-    return useContext(AuthContext);
 };
