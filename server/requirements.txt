@@ -58,7 +58,6 @@ marshmallow-sqlalchemy==1.1.1
 matplotlib-inline==0.1.7
 mdurl==0.1.2
 netifaces==0.11.0
-ntpsec==1.2.2
 numpy==1.24.4
 oauthlib==3.2.2
 packaging==25.0
