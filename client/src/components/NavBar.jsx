@@ -1,20 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext"; // Added auth context
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, logout } = useAuth(); // Using actual auth context
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   const handleAuth = () => {
-    if (isAuthenticated) {
-      setIsAuthenticated(false);
-      console.log("Signed out");
+    if (user) {
+      logout();
+      navigate("/");
     } else {
-      navigate("/signin"); // SPA-friendly navigation
+      navigate("/login");
     }
   };
 
@@ -32,11 +33,11 @@ export default function Navbar() {
           {/* Desktop Menu */}
           <div className={`nav-menu ${isMenuOpen ? "active" : ""}`}>
             <div className="nav-links">
-              <a href="#home" className="nav-link active">Home</a>
-              <a href="#services" className="nav-link">Services</a>
-              <a href="#doctors" className="nav-link">Doctors</a>
+              <Link to="/" className="nav-link">Home</Link>
+              <Link to="/login" className="nav-link">Login</Link>
+              {user && <Link to="/dashboard" className="nav-link">Dashboard</Link>}
               <button onClick={handleAuth} className="nav-btn">
-                {isAuthenticated ? "Sign Out" : "Sign In"}
+                {user ? "Sign Out" : "Sign In"}
               </button>
             </div>
           </div>
@@ -47,6 +48,20 @@ export default function Navbar() {
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="mobile-menu">
+              <div className="mobile-menu-content">
+                <Link to="/" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Home</Link>
+                <Link to="/login" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Login</Link>
+                {user && <Link to="/dashboard" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>}
+                <button onClick={() => { handleAuth(); setIsMenuOpen(false); }} className="mobile-btn">
+                  {user ? "Sign Out" : "Sign In"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>

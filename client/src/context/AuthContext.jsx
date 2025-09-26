@@ -1,5 +1,3 @@
-// src/context/AuthContext.jsx
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -12,7 +10,7 @@ export const AuthProvider = ({ children }) => {
     const demoUsers = {
         'patient@example.com': { id: 1, name: 'Demo Patient', email: 'patient@example.com', role: 'patient' },
         'doctor@example.com': { id: 2, name: 'Demo Doctor', email: 'doctor@example.com', role: 'doctor' },
-        'admin@example.com': { id: 3, name: 'Demo Admin', email: 'admin@example.com', role: 'clinic_admin' },
+        'admin@example.com': { id: 3, name: 'Demo Admin', email: 'admin@example.com', role: 'admin' },
     };
 
     useEffect(() => {
@@ -62,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={value}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };
