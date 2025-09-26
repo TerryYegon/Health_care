@@ -1,0 +1,229 @@
+/* src/pages/Doctors.css */
+
+.doctors-page-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 80vh;
+}
+
+.doctors-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.doctors-title {
+  color: #2563eb;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.doctors-description {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.error-message {
+  padding: 15px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.loading-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.filter-container {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.clinic-filter-select {
+  padding: 10px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-width: 200px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%236B7280" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15 11.293V15h2V8l-7.707 7.707-.707.707L9.293 12.95zM4 11l5-5V11H4z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 0.65em auto;
+}
+
+.doctors-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.doctor-card-doctors-page {
+  padding: 25px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.doctor-card-doctors-page:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+}
+
+.doctor-avatar-doctors-page {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.doctor-name-doctors-page {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.doctor-specialty-doctors-page {
+  color: #6b7280;
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.doctor-clinic-name {
+  color: #2563eb;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.book-btn {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.book-btn:hover:not(.disabled) {
+  background: #1d4ed8;
+}
+
+.book-btn.disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.no-doctors-found {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+/* Booking Modal */
+.booking-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.booking-modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.booking-modal-title {
+  margin-bottom: 20px;
+  color: #2563eb;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-textarea {
+  min-height: 80px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-submit-btn,
+.modal-cancel-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.modal-submit-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.modal-submit-btn:hover {
+  background: #1d4ed8;
+}
+
+.modal-cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.modal-cancel-btn:hover {
+  background: #4b5563;
+}
