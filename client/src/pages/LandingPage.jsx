@@ -1,114 +1,250 @@
 import React, { useState } from 'react';
+import { useFormik } from 'formik';
 import { Search, Calendar, MessageCircle, Heart, Activity, Pill, Star } from 'lucide-react';
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-
 import './LandingPage.css';
 
 const LandingPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    doctor: '',
-    description: '',
-    phone: '',
-  });
+  const [submitMessage, setSubmitMessage] = useState('');
 
   const openForm = () => setIsFormOpen(true);
-  const closeForm = () => setIsFormOpen(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setSubmitMessage('');
+    formik.resetForm();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      doctor: '',
+      description: '',
+      phone: '',
+      date: '',
+      time: ''
+    },
+    validate: (values) => {
+      const errors = {};
+      
+      // String validations
+      if (!values.name) {
+        errors.name = 'Name is required';
+      } else if (values.name.length < 2) {
+        errors.name = 'Name must be at least 2 characters';
+      }
 
-    const doctorIdMap = {
-      "Dr. Linda - Medicine Specialist": 1,
-      "Dr. Alisa - Cardiology Specialist": 2,
-      "Dr. Antony - Neurology Specialist": 3,
-      "Dr. Khalid - Cancer Specialist": 4,
-    };
-    const doctor_id = doctorIdMap[formData.doctor];
+      if (!values.doctor) {
+        errors.doctor = 'Please select a doctor';
+      }
 
-    try {
-      // Step 1: Create patient
-      const patientRes = await fetch('http://127.0.0.1:5000/api/patients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Role': 'admin' },
-        body: JSON.stringify({ name: formData.name, age: 0 }),
-      });
-      const patientData = await patientRes.json();
+      if (!values.description) {
+        errors.description = 'Description is required';
+      } else if (values.description.length < 10) {
+        errors.description = 'Description must be at least 10 characters';
+      }
 
-      // Step 2: Create appointment
-      await fetch('http://127.0.0.1:5000/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Role': 'admin' },
-        body: JSON.stringify({
-          patient_id: patientData.id,
-          doctor_id,
-          date: "2025-10-10",
-          time: "10:00",
-          description: formData.description,
-          phone: formData.phone,
-        }),
-      });
+      // Phone format validation
+      if (!values.phone) {
+        errors.phone = 'Phone number is required';
+      } else if (!/^\d{10,15}$/.test(values.phone.replace(/\D/g, ''))) {
+        errors.phone = 'Please enter a valid phone number';
+      }
 
-      alert("Appointment booked successfully!");
-      setFormData({ name: '', doctor: '', description: '', phone: '' });
-      closeForm();
-    } catch (error) {
-      console.error(error);
-      alert("Error booking appointment.");
-    }
-  };
+      // Date validation
+      if (!values.date) {
+        errors.date = 'Date is required';
+      } else {
+        const selectedDate = new Date(values.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (selectedDate < today) {
+          errors.date = 'Date cannot be in the past';
+        }
+      }
+
+      // Time validation
+      if (!values.time) {
+        errors.time = 'Time is required';
+      }
+
+      return errors;
+    },
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        const doctorIdMap = {
+          "Dr. Linda - Medicine Specialist": 1,
+          "Dr. Alisa - Cardiology Specialist": 2,
+          "Dr. Antony - Neurology Specialist": 3,
+          "Dr. Khalid - Cancer Specialist": 4,
+        };
+        const doctor_id = doctorIdMap[values.doctor];
+
+        // Create patient
+        const patientRes = await fetch('http://127.0.0.1:5000/api/patients', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Role': 'admin'  // ADDED THIS LINE TO FIX 403 ERROR
+          },
+          body: JSON.stringify({ 
+            name: values.name, 
+            age: 30,
+            contact: values.phone
+          }),
+        });
+        
+        if (!patientRes.ok) {
+          throw new Error('Failed to create patient');
+        }
+        
+        const patientData = await patientRes.json();
+
+        // Create appointment
+        const appointmentRes = await fetch('http://127.0.0.1:5000/api/appointments', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Role': 'admin'  // ADDED THIS LINE TO FIX 403 ERROR
+          },
+          body: JSON.stringify({
+            patient_id: patientData.id,
+            doctor_id,
+            date: values.date,
+            time: values.time,
+            reason: values.description,
+            status: 'pending'
+          }),
+        });
+
+        if (!appointmentRes.ok) {
+          throw new Error('Failed to create appointment');
+        }
+
+        setSubmitMessage('Appointment booked successfully!');
+        setTimeout(() => {
+          closeForm();
+        }, 2000);
+      } catch (error) {
+        console.error(error);
+        setSubmitMessage('Error booking appointment. Please try again.');
+      }
+      setSubmitting(false);
+    },
+  });
 
   return (
     <div className="landing-page">
-      {/* NavBar */}
       <NavBar openForm={openForm} />
 
-      {/* Booking Form Modal */}
       {isFormOpen && (
         <div className="form-modal">
           <div className="form-modal-content">
             <button className="close-btn" onClick={closeForm}>X</button>
             <h2>Book Appointment</h2>
-            <form onSubmit={handleSubmit}>
+            {submitMessage && (
+              <div className={`message ${submitMessage.includes('Error') ? 'error' : 'success'}`}>
+                {submitMessage}
+              </div>
+            )}
+            <form onSubmit={formik.handleSubmit}>
               <label>
                 Name:
-                <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={formik.values.name} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.name && formik.errors.name && (
+                  <div className="error-text">{formik.errors.name}</div>
+                )}
               </label>
 
               <label>
                 Choose Doctor:
-                <select name="doctor" value={formData.doctor} onChange={handleChange} required>
+                <select 
+                  name="doctor" 
+                  value={formik.values.doctor} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                >
                   <option value="">Select a Doctor</option>
                   <option value="Dr. Linda - Medicine Specialist">Dr. Linda - Medicine Specialist</option>
                   <option value="Dr. Alisa - Cardiology Specialist">Dr. Alisa - Cardiology Specialist</option>
                   <option value="Dr. Antony - Neurology Specialist">Dr. Antony - Neurology Specialist</option>
                   <option value="Dr. Khalid - Cancer Specialist">Dr. Khalid - Cancer Specialist</option>
                 </select>
+                {formik.touched.doctor && formik.errors.doctor && (
+                  <div className="error-text">{formik.errors.doctor}</div>
+                )}
+              </label>
+
+              <label>
+                Date:
+                <input 
+                  type="date" 
+                  name="date" 
+                  value={formik.values.date} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.date && formik.errors.date && (
+                  <div className="error-text">{formik.errors.date}</div>
+                )}
+              </label>
+
+              <label>
+                Time:
+                <input 
+                  type="time" 
+                  name="time" 
+                  value={formik.values.time} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.time && formik.errors.time && (
+                  <div className="error-text">{formik.errors.time}</div>
+                )}
               </label>
 
               <label>
                 Describe Your Symptoms:
-                <textarea name="description" value={formData.description} onChange={handleChange} required />
+                <textarea 
+                  name="description" 
+                  value={formik.values.description} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.description && formik.errors.description && (
+                  <div className="error-text">{formik.errors.description}</div>
+                )}
               </label>
 
               <label>
                 Phone Number:
-                <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required />
+                <input 
+                  type="tel" 
+                  name="phone" 
+                  value={formik.values.phone} 
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                {formik.touched.phone && formik.errors.phone && (
+                  <div className="error-text">{formik.errors.phone}</div>
+                )}
               </label>
 
-              <button type="submit" className="btn-primary">Submit</button>
+              <button type="submit" disabled={formik.isSubmitting} className="btn-primary">
+                {formik.isSubmitting ? 'Booking...' : 'Submit'}
+              </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Hero Section */}
       <section id="home" className="hero-section">
         <div className="hero-grid container">
           <div className="hero-content">
@@ -135,7 +271,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Steps Section */}
       <section className="steps-section">
         <div className="container">
           <div className="section-header">
@@ -176,7 +311,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Quality Section */}
       <section className="quality-section">
         <div className="container">
           <div className="quality-grid">
@@ -206,7 +340,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Services Section */}
       <section id="services" className="services-section">
         <div className="container">
           <div className="section-header">
@@ -250,7 +383,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Doctors Section */}
       <section id="doctors" className="doctors-section">
         <div className="container">
           <div className="section-header">
@@ -285,7 +417,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
@@ -299,7 +430,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      
+      <Footer />
     </div>
   );
 };

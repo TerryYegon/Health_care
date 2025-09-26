@@ -8,6 +8,8 @@ import Login from "./components/Login";
 import Navbar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx"; 
 import LandingPage from "./pages/LandingPage.jsx";
+import SignIn from "./pages/SignIn.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
   return (
@@ -50,7 +52,8 @@ function App() {
           element={<Navigate to={user ? "/appointments" : "/login"} replace />}
         />
         <Route path="/" element={<LandingPage />} />
-        {/* You can add more routes here */}
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
       <Footer />
     </Router>

@@ -1,136 +1,122 @@
-// src/pages/SignIn.jsx
-import React from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
-import { authAPI } from "../api";
-import { useAuth } from "../context/AuthContext"; // matches your imports elsewhere
-import "./SignIn.css"; // optional: create styles or reuse existing
+import React from 'react';
+import { useFormik } from 'formik';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import './SignIn.css';
 
 const SignIn = () => {
-  const auth = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const initialValues = { email: "", password: "" };
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+      role: 'patient' // patient, doctor, or admin
+    },
+    validate: (values) => {
+      const errors = {};
+      
+      // String format validation
+      if (!values.username) {
+        errors.username = 'Username is required';
+      } else if (values.username.length < 3) {
+        errors.username = 'Username must be at least 3 characters';
+      }
 
-  const ValidationSchema = Yup.object().shape({
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    password: Yup.string().min(6, "Minimum 6 characters").required("Password is required"),
+      // Data type and format validation
+      if (!values.password) {
+        errors.password = 'Password is required';
+      } else if (values.password.length < 6) {
+        errors.password = 'Password must be at least 6 characters';
+      }
+
+      if (!values.role) {
+        errors.role = 'Please select a role';
+      }
+
+      return errors;
+    },
+    onSubmit: async (values, { setSubmitting, setErrors }) => {
+      try {
+        await login(values.username, values.password);
+        navigate('/dashboard');
+      } catch (error) {
+        setErrors({ submit: error.message });
+      }
+      setSubmitting(false);
+    },
   });
 
-  const handleSetUserInContext = (userObj) => {
-    // Defensive: try common ways AuthContext may accept a user
-    if (auth && typeof auth.setUser === "function") {
-      auth.setUser(userObj);
-    } else if (auth && typeof auth.login === "function") {
-      // some contexts expose login(user)
-      auth.login(userObj);
-    } else if (auth && typeof auth.dispatch === "function") {
-      // Redux-like context
-      auth.dispatch({ type: "LOGIN", payload: userObj });
-    } else {
-      // fallback so app has a user available (temp)
-      localStorage.setItem("user", JSON.stringify(userObj));
-    }
-  };
-
   return (
-    <div className="signin-page">
-      <h2>Sign In</h2>
+    <div className="signin-container">
+      <div className="signin-form">
+        <h2>Sign In</h2>
+        <form onSubmit={formik.handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="role">I am a:</label>
+            <select
+              id="role"
+              name="role"
+              onChange={formik.handleChange}
+              value={formik.values.role}
+            >
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+              <option value="admin">Clinic Admin</option>
+            </select>
+          </div>
 
-      <Formik
-        initialValues={initialValues}
-        validationSchema={ValidationSchema}
-        onSubmit={async (values, { setSubmitting, setStatus }) => {
-          setStatus(null);
-          setSubmitting(true);
-          try {
-            const user = await authAPI.login(values);
-            handleSetUserInContext(user);
-            setSubmitting(false);
-            navigate("/dashboard", { replace: true });
-          } catch (err) {
-            setStatus(err.message || "Login failed");
-            setSubmitting(false);
-          }
-        }}
-      >
-        {({ isSubmitting, status }) => (
-          <Form className="signin-form">
-            {status && <div className="error-message">{status}</div>}
+          <div className="form-group">
+            <label htmlFor="username">Username:</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              onChange={formik.handleChange}
+              value={formik.values.username}
+              placeholder="Enter your username"
+            />
+            {formik.errors.username && (
+              <div className="error">{formik.errors.username}</div>
+            )}
+          </div>
 
-            <label>
-              Email
-              <Field type="email" name="email" />
-              <ErrorMessage name="email" component="div" className="field-error" />
-            </label>
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              onChange={formik.handleChange}
+              value={formik.values.password}
+              placeholder="Enter your password"
+            />
+            {formik.errors.password && (
+              <div className="error">{formik.errors.password}</div>
+            )}
+          </div>
 
-            <label>
-              Password
-              <Field type="password" name="password" />
-              <ErrorMessage name="password" component="div" className="field-error" />
-            </label>
+          {formik.errors.submit && (
+            <div className="error submit-error">{formik.errors.submit}</div>
+          )}
 
-            <button type="submit" disabled={isSubmitting} className="btn-primary">
-              {isSubmitting ? "Signing in..." : "Sign In"}
-            </button>
+          <button 
+            type="submit" 
+            disabled={formik.isSubmitting}
+            className="submit-btn"
+          >
+            {formik.isSubmitting ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
 
-            {/* optional handy demo buttons for quick testing */}
-            <div style={{ marginTop: 12 }}>
-              <small>Quick demo logins:</small>
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    // demo: autofill and submit via authAPI, then redirect
-                    (async () => {
-                      try {
-                        const demoUser = await authAPI.login({ email: "patient@example.com" });
-                        handleSetUserInContext(demoUser);
-                        navigate("/dashboard", { replace: true });
-                      } catch (e) {
-                        // ignore
-                      }
-                    })();
-                  }}
-                >
-                  Demo Patient
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    (async () => {
-                      try {
-                        const demoUser = await authAPI.login({ email: "doctor@example.com" });
-                        handleSetUserInContext(demoUser);
-                        navigate("/dashboard", { replace: true });
-                      } catch (e) {}
-                    })();
-                  }}
-                >
-                  Demo Doctor
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    (async () => {
-                      try {
-                        const demoUser = await authAPI.login({ email: "admin@example.com" });
-                        handleSetUserInContext(demoUser);
-                        navigate("/dashboard", { replace: true });
-                      } catch (e) {}
-                    })();
-                  }}
-                >
-                  Demo Admin
-                </button>
-              </div>
-            </div>
-          </Form>
-        )}
-      </Formik>
+        <div className="demo-accounts">
+          <h4>Demo Accounts:</h4>
+          <p>Patient: patient@example.com / password123</p>
+          <p>Doctor: doctor@example.com / password123</p>
+          <p>Admin: admin@example.com / password123</p>
+        </div>
+      </div>
     </div>
   );
 };
