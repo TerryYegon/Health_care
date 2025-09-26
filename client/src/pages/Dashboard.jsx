@@ -7,11 +7,17 @@ const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     fetchAppointments();
     fetchDoctors();
   }, [user]);
+
+  const showMessage = (msg) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(''), 3000);
+  };
 
   const fetchAppointments = async () => {
     try {
@@ -20,6 +26,7 @@ const Dashboard = () => {
       setAppointments(data);
     } catch (error) {
       console.error('Error fetching appointments:', error);
+      showMessage('Error loading appointments');
     } finally {
       setLoading(false);
     }
@@ -37,7 +44,7 @@ const Dashboard = () => {
 
   const handleAssignDoctor = async (appointmentId, doctorId) => {
     try {
-      await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -45,15 +52,22 @@ const Dashboard = () => {
         },
         body: JSON.stringify({ doctor_id: doctorId })
       });
-      fetchAppointments();
+      
+      if (response.ok) {
+        showMessage('Doctor assigned successfully!');
+        fetchAppointments();
+      } else {
+        showMessage('Error assigning doctor');
+      }
     } catch (error) {
       console.error('Error assigning doctor:', error);
+      showMessage('Error assigning doctor');
     }
   };
 
   const handleUpdateStatus = async (appointmentId, status) => {
     try {
-      await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}/status`, {
+      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -61,22 +75,36 @@ const Dashboard = () => {
         },
         body: JSON.stringify({ status })
       });
-      fetchAppointments();
+      
+      if (response.ok) {
+        showMessage(`Appointment ${status} successfully!`);
+        await fetchAppointments();
+      } else {
+        showMessage('Error updating status');
+      }
     } catch (error) {
       console.error('Error updating status:', error);
+      showMessage('Error updating status');
     }
   };
 
   const handleDeleteAppointment = async (appointmentId) => {
     if (window.confirm('Are you sure you want to delete this appointment?')) {
       try {
-        await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
+        const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
           method: 'DELETE',
           headers: { 'Role': 'admin' }
         });
-        fetchAppointments();
+        
+        if (response.ok) {
+          showMessage('Appointment deleted successfully!');
+          fetchAppointments();
+        } else {
+          showMessage('Error deleting appointment');
+        }
       } catch (error) {
         console.error('Error deleting appointment:', error);
+        showMessage('Error deleting appointment');
       }
     }
   };
@@ -105,6 +133,12 @@ const Dashboard = () => {
         <h1>Dashboard - {user.role.charAt(0).toUpperCase() + user.role.slice(1)}</h1>
         <button onClick={logout} className="logout-btn">Logout</button>
       </div>
+
+      {message && (
+        <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
+          {message}
+        </div>
+      )}
 
       {user.role === 'admin' && (
         <div className="admin-section">
