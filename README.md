@@ -4,8 +4,8 @@ A comprehensive Clinical Appointment Management System that allows clinics to ma
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://healthcare-clinic.vercel.app](https://healthcare-clinic.vercel.app)
-- **API Documentation**: [https://healthcare-api.render.com/api/docs](https://healthcare-api.render.com/api/docs)
+- **Frontend**: 
+https://health-care-62pm.vercel.app/
 
 
 
