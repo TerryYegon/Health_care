@@ -19,7 +19,7 @@ https://health-care-62pm.vercel.app/
 - **RESTful API**: Well-documented REST API with OpenAPI
 - **Database Integration**: Persistent data storage with migrations
 - **Real-time Updates**: Live appointment status updates
-- **Search & Filtering**: Advanced search for patients, doctors, and appointments
+
 
 ## 🛠 Tech Stack
 
