@@ -1,5 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_migrate import Migrate
+import os
+
 from extensions import db, ma
 from models import seed_data
 from routes import api
@@ -10,9 +13,12 @@ CORS(app, supports_credentials=True)  # Fixed CORS for sessions
 # -----------------------------
 # Config
 # -----------------------------
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///healthcare.db"
+# Use DATABASE_URL from environment, fallback to local SQLite
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL", "sqlite:///healthcare.db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "your-secret-key-here"  # Added for sessions
+app.config["SECRET_KEY"] = "your-secret-key-here"
 
 # -----------------------------
 # Init extensions
@@ -20,13 +26,16 @@ app.config["SECRET_KEY"] = "your-secret-key-here"  # Added for sessions
 db.init_app(app)
 ma.init_app(app)
 
+# Setup Flask-Migrate
+migrate = Migrate(app, db)
+
 # -----------------------------
 # Register blueprint
 # -----------------------------
 app.register_blueprint(api, url_prefix="/api")
 
 # -----------------------------
-# Create tables + seed
+# Seed data only if needed
 # -----------------------------
 with app.app_context():
     db.create_all()
@@ -39,5 +48,6 @@ with app.app_context():
 def home():
     return {"message": "Healthcare API is running!"}, 200
 
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5555)
