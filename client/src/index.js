@@ -1,6 +1,6 @@
 // src/api/index.js
 
-const BASE_URL = 'http://localhost:5000'; // your backend URL
+const BASE_URL = 'https://health-care-4-nmz5.onrender.com/'; // your backend URL
 
 export const usersAPI = {
   getAll: async () => {

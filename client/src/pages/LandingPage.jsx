@@ -82,7 +82,7 @@ const LandingPage = () => {
         const doctor_id = doctorIdMap[values.doctor];
 
         // Create patient
-        const patientRes = await fetch('http://127.0.0.1:5000/api/patients', {
+        const patientRes = await fetch('https://health-care-4-nmz5.onrender.com/api/patients', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const LandingPage = () => {
         const patientData = await patientRes.json();
 
         // Create appointment
-        const appointmentRes = await fetch('http://127.0.0.1:5000/api/appointments', {
+        const appointmentRes = await fetch('https://health-care-4-nmz5.onrender.com/api/appointements', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',

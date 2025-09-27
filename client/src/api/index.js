@@ -1,6 +1,6 @@
 // src/api/index.js
 
-const BASE_URL = 'https://health-care-4-nmz5.onrender.com';
+const BASE_URL = 'https://health-care-4-nmz5.onrender.com/';
 
 export const usersAPI = {
   getAll: async () => {

@@ -21,7 +21,7 @@ const Dashboard = () => {
 
   const fetchAppointments = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/appointments');
+      const response = await fetch('https://health-care-4-nmz5.onrender.com/api/appointments');
       const data = await response.json();
       setAppointments(data);
     } catch (error) {
@@ -34,7 +34,7 @@ const Dashboard = () => {
 
   const fetchDoctors = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/doctors');
+      const response = await fetch('https://health-care-4-nmz5.onrender.com/api/doctors');
       const data = await response.json();
       setDoctors(data);
     } catch (error) {
@@ -44,7 +44,7 @@ const Dashboard = () => {
 
   const handleAssignDoctor = async (appointmentId, doctorId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
+      const response = await fetch(`https://health-care-4-nmz5.onrender.com/api/appointments/${appointmentId}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
   const handleUpdateStatus = async (appointmentId, status) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}/status`, {
+      const response = await fetch(`https://health-care-4-nmz5.onrender.com/api/appointments/${appointmentId}/status`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const Dashboard = () => {
   const handleDeleteAppointment = async (appointmentId) => {
     if (window.confirm('Are you sure you want to delete this appointment?')) {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/api/appointments/${appointmentId}`, {
+        const response = await fetch(`https://health-care-4-nmz5.onrender.com/api/appointments/${appointmentId}`, {
           method: 'DELETE',
           headers: { 'Role': 'admin' }
         });
