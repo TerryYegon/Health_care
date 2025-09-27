@@ -3,7 +3,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.jsx";
 import Appointments from "./pages/Appointments.jsx";
-import AdminDoctors from "./pages/AdminDoctors.jsx";
 import Login from "./components/Login";
 import Navbar from "./components/NavBar.jsx";
 import Footer from "./components/Footer.jsx"; 
@@ -12,20 +11,25 @@ import SignIn from "./pages/SignIn.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
+  const { user } = useAuth(); // ✅ ensure user is available
+
   return (
     <Router>
       <Navbar />
       <Routes>
-        {/* Root route: redirect only */}
-        <Route
-          path="/"
-          element={<Navigate to={user ? "/appointments" : "/login"} replace />}
-        />
+        {/* Root route */}
+        <Route path="/" element={<LandingPage />} />
 
         {/* Login */}
         <Route
           path="/login"
-          element={!user ? <Login /> : <Navigate to="/" replace />}
+          element={!user ? <Login /> : <Navigate to="/appointments" replace />}
+        />
+
+        {/* SignIn (if you want a separate one) */}
+        <Route
+          path="/signin"
+          element={!user ? <SignIn /> : <Navigate to="/appointments" replace />}
         />
 
         {/* Appointments route */}
@@ -34,16 +38,10 @@ function App() {
           element={user ? <Appointments /> : <Navigate to="/login" replace />}
         />
 
-        {/* Admin Doctors route */}
+        {/* Dashboard */}
         <Route
-          path="/admin/doctors"
-          element={
-            user && user.role === "clinic_admin" ? (
-              <AdminDoctors />
-            ) : (
-              <Navigate to={user ? "/appointments" : "/login"} replace />
-            )
-          }
+          path="/dashboard"
+          element={user ? <Dashboard /> : <Navigate to="/login" replace />}
         />
 
         {/* Catch-all route */}
@@ -51,9 +49,6 @@ function App() {
           path="*"
           element={<Navigate to={user ? "/appointments" : "/login"} replace />}
         />
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
       <Footer />
     </Router>
